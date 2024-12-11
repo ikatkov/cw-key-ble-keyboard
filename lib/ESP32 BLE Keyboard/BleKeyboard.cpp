@@ -468,7 +468,6 @@ void BleKeyboard::releaseAll(void)
     _mediaKeyReport[0] = 0;
     _mediaKeyReport[1] = 0;
 	sendReport(&_keyReport);
-	sendReport(&_mediaKeyReport);
 }
 
 size_t BleKeyboard::write(uint8_t c)
@@ -485,7 +484,7 @@ size_t BleKeyboard::write(const MediaKeyReport c)
 	return p;              // just return the result of press() since release() almost always returns 1
 }
 
-size_t BleKeyboard::owrite(const uint8_t *buffer, size_t size) {
+size_t BleKeyboard::write(const uint8_t *buffer, size_t size) {
 	size_t n = 0;
 	while (size--) {
 		if (*buffer != '\r') {
