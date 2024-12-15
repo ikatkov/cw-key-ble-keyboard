@@ -1,3 +1,7 @@
 .pio
 .vscode/*
 .DS_Store
+firmware/.vscode/extensions.json
+kicad/main-backups/*
+kicad/*.lck
+kicad/#auto_saved_files#
