@@ -4,13 +4,22 @@
 #include "soc/rtc_cntl_reg.h"
 
 BleKeyboard bleKeyboard;
-#define PADDLE_DIT_PIN 4
-#define PADDLE_DAH_PIN 5
-#define POWER_LATCH_PIN 18
-#define BUTTON_SENSE_PIN 23
+// #define PADDLE_DIT_PIN 4
+// #define PADDLE_DAH_PIN 5
+// #define POWER_LATCH_PIN 18
+// #define BUTTON_SENSE_PIN 23
+// #define VOLTAGE_DETECTOR_PIN 36
+// #define BUZZER_PIN 22
+// #define LED_PIN 19
+
+#define PADDLE_DIT_PIN 33
+#define PADDLE_DAH_PIN 32
+
+
 #define VOLTAGE_DETECTOR_PIN 36
-#define BUZZER_PIN 22
-#define LED_PIN 19
+#define BUZZER_PIN 17
+#define BUTTON_SENSE_PIN 19
+#define POWER_LATCH_PIN 18
 
 byte button_dit_oldSwitchState = HIGH;
 byte button_dah_oldSwitchState = HIGH;
@@ -66,9 +75,9 @@ void setup()
   pinMode(PADDLE_DIT_PIN, INPUT_PULLUP);
   pinMode(PADDLE_DAH_PIN, INPUT_PULLUP);
   pinMode(VOLTAGE_DETECTOR_PIN, INPUT);
-  pinMode(BUTTON_SENSE_PIN, INPUT);
+  pinMode(BUTTON_SENSE_PIN, INPUT_PULLDOWN);
   pinMode(POWER_LATCH_PIN, OUTPUT);
-  pinMode(LED_PIN, OUTPUT);
+  // pinMode(LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(POWER_LATCH_PIN, HIGH);
 
@@ -88,9 +97,9 @@ void setup()
   bleKeyboard.setName("Morse Code Keyer");
   bleKeyboard.begin();
 
-  digitalWrite(LED_PIN, HIGH);
+  // digitalWrite(LED_PIN, HIGH);
   startup_tone();
-  digitalWrite(LED_PIN, LOW);
+  // digitalWrite(LED_PIN, LOW);
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 1);
 }
 
@@ -102,6 +111,7 @@ void loop()
   u_int16_t voltage = analogReadMilliVolts(VOLTAGE_DETECTOR_PIN);
   if (millis() - 5000 > lastLowVoltageCheck && voltage < 800)
   {
+    Serial.print("Low voltage detected");
     Serial.println(voltage);
     lastLowVoltageCheck = millis();
     tone(BUZZER_PIN, 1000, 100);
@@ -164,9 +174,11 @@ void loop()
 
   if (digitalRead(BUTTON_SENSE_PIN) == HIGH)
   {
+    Serial.println("BUTTON_SENSE_PIN HIGH");
     delay(3000);                                  // 3 second delay after button pressed
     if (digitalRead(BUTTON_SENSE_PIN) == HIGH) // check if button still pressed and wait till the button is released
     {
+      Serial.println("Shutdown manual");
       shutdown_tone();
       // shut down
       digitalWrite(POWER_LATCH_PIN, LOW);
@@ -174,7 +186,7 @@ void loop()
     }
   }
 
-  if (!turnoff_countdown && (millis() - max(button_dit_press_time, button_dit_press_time)) > 100000)
+  if (!turnoff_countdown && (millis() - max(button_dit_press_time, button_dit_press_time)) > 300000)
   {
     Serial.println("Shutdown count down");
     tone(BUZZER_PIN, 2000, 300);
@@ -186,7 +198,7 @@ void loop()
     turnoff_countdown = true;
   }
 
-  if (turnoff_countdown && (millis() - max(button_dit_press_time, button_dit_press_time)) > 120000)
+  if (turnoff_countdown && (millis() - max(button_dit_press_time, button_dit_press_time)) > 320000)
   {
     Serial.println("Shutting down after inactivity");
     shutdown_tone();
