@@ -507,9 +507,9 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "../pcb.step",
       "svg": "",
-      "vrml": ""
+      "vrml": "../main.wrl"
     },
     "page_layout_descr_file": "default.kicad_wks"
   },
