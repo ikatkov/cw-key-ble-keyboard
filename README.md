@@ -11,8 +11,13 @@ a CW Keyer -over audio-wire-> this BT Keyboard box --over BT-> iPhone
 
 The Morse Mania app expect "[" and "]" buttons, so this Bluetooth keyboard sends key_down and key_up events.
 
-<b>Notice: </b>
-if you have more than one language installed, you must switch to "English" before this BT keyboard connects. If you don't the Morse Mania app would be gettting whatever your national symbols are mapped to the "[" and "]" buttons on the standard keyboard and the app would looks broken.
+### Battery level
+On iOS battery level is visible in Battery widget - Swipe right on the Home Screen to access the Today View.
+### Multiple languages
+If you have more than one language installed, you must switch to "English" before this BT keyboard connects. If you don't the Morse Mania app would be gettting whatever your national symbols are mapped to the "[" and "]" buttons on the standard keyboard and the app would looks broken.
+
+### Key repeat
+You might want to disable auto-key repeat in iOS Settings > Accessibility > Keyboards
 
 ## Features
 - BLE keyboard functionality

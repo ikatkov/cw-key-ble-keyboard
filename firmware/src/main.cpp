@@ -15,7 +15,6 @@ BleKeyboard bleKeyboard;
 #define PADDLE_DIT_PIN 33
 #define PADDLE_DAH_PIN 32
 
-
 #define VOLTAGE_DETECTOR_PIN 36
 #define BUZZER_PIN 17
 #define BUTTON_SENSE_PIN 19
@@ -52,7 +51,6 @@ void onDahPressed()
   }
 }
 
-
 void startup_tone()
 {
   tone(BUZZER_PIN, 1000, 200);
@@ -71,7 +69,7 @@ void shutdown_tone()
 
 void setup()
 {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
   pinMode(PADDLE_DIT_PIN, INPUT_PULLUP);
   pinMode(PADDLE_DAH_PIN, INPUT_PULLUP);
   pinMode(VOLTAGE_DETECTOR_PIN, INPUT);
@@ -103,21 +101,34 @@ void setup()
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 1);
 }
 
+uint8_t mapBatteryValue(uint16_t input) {
+    // Ensure the input value is clamped within the source range
+    if (input < 800) {
+        input = 800;
+    } else if (input > 1100) {
+        input = 1100;
+    }
 
-
+    // Perform the mapping using linear interpolation
+    return (uint8_t)((input - 800) * (100 - 10) / (1100 - 800) + 10);
+}
 void loop()
 {
-  // check VOLTAGE_DETECTOR_PIN
-  u_int16_t voltage = analogReadMilliVolts(VOLTAGE_DETECTOR_PIN);
-  if (millis() - 5000 > lastLowVoltageCheck && voltage < 800)
+  if (millis() - 5000 > lastLowVoltageCheck)
   {
-    Serial.print("Low voltage detected");
-    Serial.println(voltage);
+    // check VOLTAGE_DETECTOR_PIN
+    u_int16_t voltage = analogReadMilliVolts(VOLTAGE_DETECTOR_PIN);    
     lastLowVoltageCheck = millis();
-    tone(BUZZER_PIN, 1000, 100);
-    delay(100);
-    tone(BUZZER_PIN, 1000, 100);
-    delay(100);
+    bleKeyboard.setBatteryLevel(mapBatteryValue(voltage));
+    if (voltage < 800)
+    {
+      Serial.print("Low voltage detected");
+      Serial.println(voltage);
+      tone(BUZZER_PIN, 1000, 100);
+      delay(100);
+      tone(BUZZER_PIN, 1000, 100);
+      delay(100);
+    }
   }
 
   byte button_dit_switchState = digitalRead(PADDLE_DIT_PIN);
@@ -175,7 +186,7 @@ void loop()
   if (digitalRead(BUTTON_SENSE_PIN) == HIGH)
   {
     Serial.println("BUTTON_SENSE_PIN HIGH");
-    delay(3000);                                  // 3 second delay after button pressed
+    delay(3000);                               // 3 second delay after button pressed
     if (digitalRead(BUTTON_SENSE_PIN) == HIGH) // check if button still pressed and wait till the button is released
     {
       Serial.println("Shutdown manual");
@@ -206,4 +217,5 @@ void loop()
     digitalWrite(POWER_LATCH_PIN, LOW);
     delay(1000);
   }
+  delay(10);
 }
